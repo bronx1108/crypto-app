@@ -5,19 +5,23 @@
 </head>
 <body>
 
-<h2>Login</h2>
-<input id="email" placeholder="Email"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
-<button onclick="login()">Login</button>
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>Login</h2>
+  <input id="email" placeholder="Email"><br><br>
+  <input id="password" type="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
+</div>
 
-<hr>
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+  <h2>Dashboard</h2>
+  <p>Coin: <span id="coin">0</span></p>
+  <p>USD: <span id="usd">0</span></p>
 
-<h2>Dashboard</h2>
-<p>Coin: <span id="coin">0</span></p>
-<p>USD: <span id="usd">0</span></p>
-
-<input id="amount" placeholder="Coin withdraw">
-<button onclick="withdraw()">Withdraw</button>
+  <input id="amount" placeholder="Coin withdraw">
+  <button onclick="withdraw()">Withdraw</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
@@ -29,6 +33,7 @@ const supabase = supabase.createClient(
 
 let currentUser = null;
 
+// LOGIN
 async function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -43,10 +48,17 @@ async function login() {
   }
 
   currentUser = data.user;
-  alert("Login berhasil");
+
+  // sembunyikan login
+  document.getElementById('loginBox').style.display = 'none';
+
+  // tampilkan dashboard
+  document.getElementById('dashboard').style.display = 'block';
+
   loadDashboard();
 }
 
+// LOAD DATA
 async function loadDashboard() {
   const { data: balance } = await supabase
     .from('balances')
@@ -56,11 +68,12 @@ async function loadDashboard() {
 
   const { data: price } = await supabase.rpc('get_price');
 
-  document.getElementById('coin').innerText = balance.coin;
+  document.getElementById('coin').innerText = balance?.coin || 0;
   document.getElementById('usd').innerText =
-    (balance.coin * price).toFixed(4);
+    ((balance?.coin || 0) * price).toFixed(4);
 }
 
+// WITHDRAW
 async function withdraw() {
   const amount = Number(document.getElementById('amount').value);
 
