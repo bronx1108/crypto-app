@@ -70,7 +70,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
-const supabase = supabase.createClient(
+const { createClient } = supabase;
+const supabaseClient = createClient(
   'https://cywdtlptdmkvdehfduwm.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5d2R0bHB0ZG1rdmRlaGZkdXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDE5MzEsImV4cCI6MjA5MDk3NzkzMX0.wew5KHC1NS62aWDtzxXBw3mSnA7XitpM2it5LPbcex8'
 );
@@ -82,7 +83,7 @@ async function register() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await supabaseClient.auth.signUp({
     email, password
   });
 
@@ -99,7 +100,7 @@ async function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabaseClient..auth.signInWithPassword({
     email, password
   });
 
@@ -124,7 +125,7 @@ async function loadDashboard() {
     .eq('user_id', currentUser.id)
     .single();
 
-  const { data: price } = await supabase.rpc('get_price');
+  const { data: price } = await supabaseClient..rpc('get_price');
 
   document.getElementById('coin').innerText = balance?.coin || 0;
   document.getElementById('usd').innerText =
@@ -135,7 +136,7 @@ async function loadDashboard() {
 async function withdraw() {
   const amount = Number(document.getElementById('amount').value);
 
-  const { data } = await supabase.rpc('do_withdraw', {
+  const { data } = await supabaseClient..rpc('do_withdraw', {
     p_user: currentUser.id,
     p_coin: amount
   });
