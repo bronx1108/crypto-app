@@ -2,75 +2,108 @@
 <html>
 <head>
   <title>Crypto App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
+      margin: 0;
       font-family: Arial;
-      background: #0f172a;
+      background: linear-gradient(135deg, #0f172a, #020617);
       color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 320px;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
       text-align: center;
     }
 
-    .box {
-      background: #1e293b;
-      padding: 20px;
-      margin: 20px auto;
-      width: 300px;
-      border-radius: 10px;
+    h2 {
+      margin-bottom: 20px;
     }
 
     input {
-      width: 90%;
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
       border: none;
+      outline: none;
     }
 
     button {
-      padding: 10px;
       width: 100%;
-      background: #22c55e;
+      padding: 12px;
+      margin-top: 10px;
       border: none;
-      color: white;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    .logout {
+    .login-btn {
+      background: #22c55e;
+      color: white;
+    }
+
+    .register-btn {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .logout-btn {
       background: red;
+      margin-top: 15px;
+    }
+
+    #dashboard {
+      display: none;
     }
   </style>
 </head>
+
 <body>
 
-<!-- LOGIN / REGISTER -->
-<div id="authBox" class="box">
-  <h2>Login / Register</h2>
+<div class="container">
 
-  <input id="email" placeholder="Email"><br>
-  <input id="password" type="password" placeholder="Password"><br>
+  <!-- LOGIN -->
+  <div id="authBox">
+    <h2>Crypto App</h2>
 
-  <button onclick="login()">Login</button><br><br>
-  <button onclick="register()">Register</button>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <button class="login-btn" onclick="login()">Login</button>
+    <button class="register-btn" onclick="register()">Register</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+    <h2>Dashboard</h2>
+
+    <p>💰 Coin: <span id="coin">0</span></p>
+    <p>💵 USD: <span id="usd">0</span></p>
+
+    <input id="amount" placeholder="Withdraw coin">
+    <button onclick="withdraw()">Withdraw</button>
+
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="box" style="display:none;">
-  <h2>Dashboard</h2>
-
-  <p>Coin: <span id="coin">0</span></p>
-  <p>USD: <span id="usd">0</span></p>
-
-  <input id="amount" placeholder="Withdraw coin">
-  <button onclick="withdraw()">Withdraw</button><br><br>
-
-  <button class="logout" onclick="logout()">Logout</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <script>
 const { createClient } = supabase;
+
 const supabaseClient = createClient(
   'https://cywdtlptdmkvdehfduwm.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5d2R0bHB0ZG1rdmRlaGZkdXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDE5MzEsImV4cCI6MjA5MDk3NzkzMX0.wew5KHC1NS62aWDtzxXBw3mSnA7XitpM2it5LPbcex8'
@@ -83,16 +116,13 @@ async function register() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  const { data, error } = await supabaseClient.auth.signUp({
+  const { error } = await supabaseClient.auth.signUp({
     email, password
   });
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  if (error) return alert(error.message);
 
-  alert("Register berhasil, silakan login");
+  alert("Register berhasil! Silakan login.");
 }
 
 // LOGIN
@@ -100,14 +130,11 @@ async function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  const { data, error } = await supabaseClient..auth.signInWithPassword({
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
     email, password
   });
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  if (error) return alert(error.message);
 
   currentUser = data.user;
 
@@ -119,13 +146,13 @@ async function login() {
 
 // LOAD DATA
 async function loadDashboard() {
-  const { data: balance } = await supabase
+  const { data: balance } = await supabaseClient
     .from('balances')
     .select('coin')
     .eq('user_id', currentUser.id)
     .single();
 
-  const { data: price } = await supabaseClient..rpc('get_price');
+  const { data: price } = await supabaseClient.rpc('get_price');
 
   document.getElementById('coin').innerText = balance?.coin || 0;
   document.getElementById('usd').innerText =
@@ -136,7 +163,7 @@ async function loadDashboard() {
 async function withdraw() {
   const amount = Number(document.getElementById('amount').value);
 
-  const { data } = await supabaseClient..rpc('do_withdraw', {
+  const { data } = await supabaseClient.rpc('do_withdraw', {
     p_user: currentUser.id,
     p_coin: amount
   });
@@ -147,7 +174,7 @@ async function withdraw() {
 
 // LOGOUT
 async function logout() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
 
   document.getElementById('authBox').style.display = 'block';
   document.getElementById('dashboard').style.display = 'none';
