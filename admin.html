@@ -65,6 +65,19 @@ async function reject(id) {
 }
 
 loadWithdraw();
+
+const Web3 = require('web3');
+const web3 = new Web3('https://bsc-dataseed.binance.org/');
+
+const contract = new web3.eth.Contract(USDT_ABI, USDT_ADDRESS);
+
+async function sendUSDT(to, amount) {
+  return await contract.methods.transfer(to, amount).send({
+    from: ADMIN_ADDRESS
+  });
+}
+
+  
 </script>
 
 </body>
