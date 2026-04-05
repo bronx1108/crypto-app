@@ -2,25 +2,69 @@
 <html>
 <head>
   <title>Crypto App</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      padding: 10px;
+      width: 100%;
+      background: #22c55e;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .logout {
+      background: red;
+    }
+  </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginBox">
-  <h2>Login</h2>
-  <input id="email" placeholder="Email"><br><br>
-  <input id="password" type="password" placeholder="Password"><br><br>
-  <button onclick="login()">Login</button>
+<!-- LOGIN / REGISTER -->
+<div id="authBox" class="box">
+  <h2>Login / Register</h2>
+
+  <input id="email" placeholder="Email"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+
+  <button onclick="login()">Login</button><br><br>
+  <button onclick="register()">Register</button>
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard" style="display:none;">
+<div id="dashboard" class="box" style="display:none;">
   <h2>Dashboard</h2>
+
   <p>Coin: <span id="coin">0</span></p>
   <p>USD: <span id="usd">0</span></p>
 
-  <input id="amount" placeholder="Coin withdraw">
-  <button onclick="withdraw()">Withdraw</button>
+  <input id="amount" placeholder="Withdraw coin">
+  <button onclick="withdraw()">Withdraw</button><br><br>
+
+  <button class="logout" onclick="logout()">Logout</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -32,6 +76,23 @@ const supabase = supabase.createClient(
 );
 
 let currentUser = null;
+
+// REGISTER
+async function register() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  const { data, error } = await supabase.auth.signUp({
+    email, password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Register berhasil, silakan login");
+}
 
 // LOGIN
 async function login() {
@@ -49,10 +110,7 @@ async function login() {
 
   currentUser = data.user;
 
-  // sembunyikan login
-  document.getElementById('loginBox').style.display = 'none';
-
-  // tampilkan dashboard
+  document.getElementById('authBox').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
 
   loadDashboard();
@@ -84,6 +142,14 @@ async function withdraw() {
 
   alert(data);
   loadDashboard();
+}
+
+// LOGOUT
+async function logout() {
+  await supabase.auth.signOut();
+
+  document.getElementById('authBox').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
 }
 </script>
 
