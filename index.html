@@ -112,6 +112,11 @@
     <input id="amount" placeholder="Withdraw coin">
     <button onclick="withdraw()">Withdraw</button>
 
+<br><br>
+<h3>Wallet USDT (BEP20)</h3>
+<input id="wallet" placeholder="Masukkan alamat wallet">
+<button onclick="saveWallet()">Simpan Wallet</button>
+
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 
@@ -218,6 +223,20 @@ async function claim() {
 
   alert("Reward: " + data);
   loadDashboard();
+}
+
+//WALLET
+async function saveWallet() {
+  const wallet = document.getElementById('wallet').value;
+
+  const { error } = await supabaseClient
+    .from('users')
+    .update({ wallet: wallet })
+    .eq('id', currentUser.id);
+
+  if (error) return alert(error.message);
+
+  alert("Wallet tersimpan");
 }
 </script>
 
