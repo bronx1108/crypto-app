@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Crypto App</title>
+</head>
+<body>
+
+<h2>Login</h2>
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
+
+<hr>
+
+<h2>Dashboard</h2>
+<p>Coin: <span id="coin">0</span></p>
+<p>USD: <span id="usd">0</span></p>
+
+<input id="amount" placeholder="Coin withdraw">
+<button onclick="withdraw()">Withdraw</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabase = supabase.createClient(
+  'https://cywdtlptdmkvdehfduwm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5d2R0bHB0ZG1rdmRlaGZkdXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDE5MzEsImV4cCI6MjA5MDk3NzkzMX0.wew5KHC1NS62aWDtzxXBw3mSnA7XitpM2it5LPbcex8'
+);
+
+let currentUser = null;
+
+async function login() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email, password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  currentUser = data.user;
+  alert("Login berhasil");
+  loadDashboard();
+}
+
+async function loadDashboard() {
+  const { data: balance } = await supabase
+    .from('balances')
+    .select('coin')
+    .eq('user_id', currentUser.id)
+    .single();
+
+  const { data: price } = await supabase.rpc('get_price');
+
+  document.getElementById('coin').innerText = balance.coin;
+  document.getElementById('usd').innerText =
+    (balance.coin * price).toFixed(4);
+}
+
+async function withdraw() {
+  const amount = Number(document.getElementById('amount').value);
+
+  const { data } = await supabase.rpc('do_withdraw', {
+    p_user: currentUser.id,
+    p_coin: amount
+  });
+
+  alert(data);
+  loadDashboard();
+}
+</script>
+
+</body>
+</html>
