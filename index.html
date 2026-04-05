@@ -86,10 +86,19 @@
 
   <!-- DASHBOARD -->
   <div id="dashboard">
-    <h2>Dashboard</h2>
+    <h2>💎 Crypto Dashboard</h2>
 
-    <p>💰 Coin: <span id="coin">0</span></p>
-    <p>💵 USD: <span id="usd">0</span></p>
+<div style="background:#0f172a;padding:10px;border-radius:10px;">
+  <p>💰 Total Coin</p>
+  <h1 id="coin">0</h1>
+</div>
+
+<br>
+
+<div style="background:#0f172a;padding:10px;border-radius:10px;">
+  <p>💵 Estimasi USD</p>
+  <h2 id="usd">0</h2>
+</div>
 
     <input id="amount" placeholder="Withdraw coin">
     <button onclick="withdraw()">Withdraw</button>
