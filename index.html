@@ -94,6 +94,25 @@
 </div>
 
 <br>
+    
+<h3>Faucet</h3>
+
+<div id="faucetBox">
+  <button onclick="startClaim()">Swipe Claim</button>
+</div>
+
+<div id="ads" style="display:none;">
+  <video width="100%" controls autoplay>
+    <source src="IKLAN_VIDEO_URL" type="video/mp4">
+  </video>
+</div>
+
+<div id="captcha" style="display:none;">
+  <p>Selesaikan captcha</p>
+  <button onclick="finishClaim()">Saya bukan robot</button>
+</div>
+    
+<br>
 
 <div style="background:#0f172a;padding:10px;border-radius:10px;">
   <p>💵 Estimasi USD</p>
@@ -242,6 +261,27 @@ async function saveWallet() {
 
   alert("Wallet tersimpan");
 }
+
+// FAUCET
+
+async function startClaim() {
+  document.getElementById("ads").style.display = "block";
+
+  setTimeout(() => {
+    document.getElementById("captcha").style.display = "block";
+  }, 5000);
+}
+
+async function finishClaim() {
+  const { data } = await supabaseClient.rpc('claim_faucet', {
+    p_user: currentUser.id
+  });
+
+  alert(data);
+  loadDashboard();
+}
+
+  
 </script>
 
 </body>
