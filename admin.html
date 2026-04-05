@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<h2>Admin Withdraw Panel</h2>
+
+<div id="list"></div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<script>
+const { createClient } = supabase;
+
+const supabaseClient = createClient(
+  'https://PROJECT_URL.supabase.co',
+  'PUBLIC_ANON_KEY'
+);
+
+async function loadWithdraw() {
+  const { data } = await supabaseClient
+    .from('withdrawals')
+    .select('*')
+    .eq('status','pending');
+
+  let html = "";
+
+  data.forEach(w => {
+    html += `
+      <div style="border:1px solid #ccc;margin:10px;padding:10px">
+        User: ${w.user_id}<br>
+        Coin: ${w.amount}<br>
+        USDT: ${w.usdt}<br>
+        Wallet: ${w.wallet}<br>
+
+        <button onclick="approve('${w.id}')">Approve</button>
+        <button onclick="reject('${w.id}')">Reject</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("list").innerHTML = html;
+}
+
+async function approve(id) {
+  await supabaseClient
+    .from('withdrawals')
+    .update({ status: 'paid' })
+    .eq('id', id);
+
+  alert("Approved");
+  loadWithdraw();
+}
+
+async function reject(id) {
+  await supabaseClient
+    .from('withdrawals')
+    .update({ status: 'reject' })
+    .eq('id', id);
+
+  alert("Rejected");
+  loadWithdraw();
+}
+
+loadWithdraw();
+</script>
+
+</body>
+</html>
