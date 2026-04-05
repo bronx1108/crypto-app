@@ -197,6 +197,28 @@ async function logout() {
   document.getElementById('authBox').style.display = 'block';
   document.getElementById('dashboard').style.display = 'none';
 }
+
+// STAKING
+async function stake() {
+  const amount = Number(document.getElementById('stakeAmount').value);
+
+  const { data } = await supabaseClient.rpc('do_stake', {
+    p_user: currentUser.id,
+    p_coin: amount
+  });
+
+  alert(data);
+  loadDashboard();
+}
+
+async function claim() {
+  const { data } = await supabaseClient.rpc('claim_reward', {
+    p_user: currentUser.id
+  });
+
+  alert("Reward: " + data);
+  loadDashboard();
+}
 </script>
 
 </body>
