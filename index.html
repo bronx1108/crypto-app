@@ -186,15 +186,19 @@ async function loadDashboard() {
 async function withdraw() {
   const amount = Number(document.getElementById('amount').value);
 
-  const { data } = await supabaseClient.rpc('do_withdraw', {
+  const { data, error } = await supabaseClient.rpc('do_withdraw', {
     p_user: currentUser.id,
     p_coin: amount
   });
 
-  alert(data);
+  if (error) {
+    alert("Error: " + error.message);
+    return;
+  }
+
+  alert(data); // HARUS muncul text sekarang
   loadDashboard();
 }
-
 // LOGOUT
 async function logout() {
   await supabaseClient.auth.signOut();
